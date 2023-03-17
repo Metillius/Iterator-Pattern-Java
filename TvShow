@@ -1,0 +1,172 @@
+import java.util.ArrayList;
+
+public class TvShow {
+    String Name;
+    String Type;
+    int Duration;
+
+    public TvShow(String name, String type, int duration) {
+        Name = name;
+        Type = type;
+        Duration = duration;
+    }
+
+    public String getName() {
+        return Name;
+    }
+
+    public String getType() {
+        return Type;
+    }
+
+    public int getDuration() {
+        return Duration;
+    }
+
+    @Override
+    public String toString(){
+        return Name + ", " + Type + ", " + Duration;
+    }
+}
+class IteratorPattern {
+    static void printAggregate(AbstractIterator i) {
+        System.out.println("Iterating over collection:");
+        for(i.First();  !i.IsDone(); i.Next()) {
+            System.out.println(i.CurrentShow().toString());
+        }
+        System.out.println();
+    }
+    public static void main(String[] args) {
+        // Create Aggregate.
+        AbstractAggregate aggregate = new Collection();
+        aggregate.add(new TvShow("Camdaki Kız","Dram" , 180));
+        aggregate.add(new TvShow("Organize İşler","Comedy" , 45));
+        aggregate.add(new TvShow("Şahmaran","Fantastic" , 52));
+        aggregate.add(new TvShow("Kardeş Payı","Comedy" ,  110));
+        aggregate.add(new TvShow("Yakamoz S-245","Post-apocalyptic" , 45));
+        aggregate.add(new TvShow("Kızılcık Şerbeti","Dram" ,  130));
+        aggregate.add(new TvShow("Leyla ile Mecnun","Comedy" , 60));
+        aggregate.add(new TvShow("Sıcak Kafa","Post-apocalyptic" , 55));
+        aggregate.add(new TvShow("Kuş Uçuşu","Dram" ,  50));
+
+
+
+
+
+        // Create Iterator
+        AbstractIterator iterator = aggregate.CreateIterator(1);
+        AbstractIterator DRAMAiterator = aggregate.CreateIterator(2);
+        // Traverse the Aggregate.
+        //printAggregate(iterator);
+
+        printAggregate(DRAMAiterator);
+    }
+}
+
+//
+//Our concrete collection consists of Items.
+//
+
+class Item {
+    public Item(String name) { _name = name; };
+    public String getName() { return _name;};
+    private String _name;
+}
+
+//
+//This is the abstract "Iterator".
+//		AbstractIterator
+//
+
+interface  AbstractIterator {
+    void First();
+    void Next();
+    Boolean IsDone () ;
+    TvShow CurrentShow() ;
+}
+
+//
+//This is the "concrete" Iterator for collection.
+//		CollectionIterator
+//
+
+class CollectionIterator implements AbstractIterator {
+    public void First() {_current = 0;}
+    public void Next()  {_current++; }
+    public TvShow CurrentShow() { return (IsDone()?null:_collection.get(_current)); }
+    public Boolean IsDone() {	return _current >= _collection.getCount(); }
+    public CollectionIterator(Collection collection) {
+        _collection = collection;
+        _current = 0;
+    }
+    private Collection _collection;
+    private int _current;
+};
+
+class DramIterator implements AbstractIterator {
+    public void First() {
+        _current = 0;
+        while (!IsDone() && !_collection.get(_current).getType().equals("Dram")){
+            _current++;
+        }
+    }
+
+
+    public void Next()  {
+        _current ++;
+        while (!IsDone() && !_collection.get(_current).getType().equals("Dram")){
+            _current++;
+        }
+    }
+
+
+    public TvShow CurrentShow() { return (IsDone()?null:_collection.get(_current)); }
+    public Boolean IsDone() {	return _current >= _collection.getCount(); }
+    public DramIterator(Collection collection) {
+        _collection = collection;
+        _current = 0;
+    }
+    private Collection _collection;
+    private int _current;
+}
+
+
+//
+//This is the abstract "Aggregate".
+//			AbstractAggregate
+//
+
+interface AbstractAggregate {
+    public AbstractIterator CreateIterator(int x);
+    public void add(TvShow it); 		// Not needed for iteration.
+    public int getCount (); // Needed for iteration.
+    public TvShow get(int idx); // Needed for iteration.
+};
+
+//
+//This is the concrete Aggregate.
+//			Collection
+//
+
+class Collection implements AbstractAggregate {
+    private ArrayList<TvShow> _shows = new ArrayList<TvShow>();
+
+
+
+    public	AbstractIterator CreateIterator(int x) {
+
+        if (x == 1){
+            return new CollectionIterator(this);
+
+        }
+        else{
+            return new DramIterator(this);
+        }
+
+    }
+
+
+    public int getCount () {return _shows.size(); }
+    public void add(TvShow turkShow) {_shows.add(turkShow);};
+    public TvShow get(int index) { return _shows.get(index);};
+};
